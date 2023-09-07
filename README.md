@@ -7,11 +7,11 @@
 1. Backend Team
    - Raiymbek Nazymkhan
    - Almaz Shinbay
-   - Yesfir
+   - Yesfir Yermekbayeva
 2. Web Team
    - Raiymbek Nazymkhan
    - Kuzenbayeva Aruzhan
-   - Zhibek
+   - Zhibek Rakhymbekkyzy
 3. Application Team
    - Raiymbek Nazymkhan
    - Alipova Ardak
