@@ -20,7 +20,7 @@
 
 ## Diagram
 
-<!-- ![Diagram](https://github.com/RamboXD/CSCI-361/blob/main/SRS.drawio.png) -->
+![Diagram](https://github.com/RamboXD/CSCI-361-Section-7-Group-4/blob/main/HelloWorldTeam.drawio.png)
 
 ## Tasks for this week 24.08 - 31.09:
 
