@@ -4,18 +4,18 @@
 
 ## Team members:
 
-1. Backend Team
+1. Backend Team - **Go**
    - Raiymbek Nazymkhan
    - Almaz Shinbay
    - Yesfir Yermekbayeva
-2. Web Team
+2. Web Team - **React**
    - Raiymbek Nazymkhan
    - Kuzenbayeva Aruzhan
    - Zhibek Rakhymbekkyzy
-3. Application Team
+3. Application Team - **React Native**
    - Raiymbek Nazymkhan
    - Alipova Ardak
-4. Design Team - Presentation
+4. Design Team - Presentation - **Figma**
    - Kuzenbayeva Aruzhan
 
 ## Diagram
