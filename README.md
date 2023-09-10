@@ -38,4 +38,5 @@
 
 ## Tasks for this week 31.08 - 07.09:
 
-- Added notify to tg
+- Added bot for workflow
+
