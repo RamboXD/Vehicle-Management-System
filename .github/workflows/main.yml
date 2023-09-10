@@ -14,4 +14,5 @@ jobs:
         message: |  #https://help.github.com/en/actions/reference/contexts-and-expression-syntax-for-github-actions#github-context
           ${{ github.actor }} мәләдес! 
           ${{ github.event_name }} commit in ${{ github.repository }}. 
+          ${{ github.ref_name }}
           [${{github.sha}}@${{ github.ref }}]
