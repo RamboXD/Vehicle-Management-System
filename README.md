@@ -37,3 +37,5 @@
 - After reading the documentation look up for the similar applications(UwU, Yandex taxi, Indriver and different delivery application...) and observe to start to create the approximate design for our project(нарисуй наброски)
 
 ## Tasks for this week 31.08 - 07.09:
+
+- Added bot for workflow
