@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+
     - name: Update status
       uses: appleboy/telegram-action@master
       with:
@@ -15,3 +16,4 @@ jobs:
         message: |  #https://help.github.com/en/actions/reference/contexts-and-expression-syntax-for-github-actions#github-context
           🔥🔥 ${{ github.actor }} мәләдес! 🔥🔥
           ${{ github.event_name }} commit in ${{ github.ref_name }}
+
