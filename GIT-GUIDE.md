@@ -1,0 +1,11 @@
+## Git Guide 
+- [Git Reference](http://git.github.io/git-reference): despite its name it is more of a user guide.
+- ["Pro Git" Book](http://git-scm.com/book): by a core developer, also a thorough user guide.
+- [Git Documentation](http://git-scm.com/documentation): the official reference (also accessible with `git help command`)
+- [Think Like a Git](http://think-like-a-git.net/): a course for "advanced beginners" that know basic committing but want to make sense of the Git model. Especially useful if you come from SVN to really clear misconceptions about git.
+- [Git Concepts Simplified](http://gitolite.com/gcs/): Similar to the previous link, but less in-depth and more straightforward.
+- [Git Immersion](http://gitimmersion.com/): learn Git by using it on carefully crafted examples of increasing complexity.
+- [Git from the bottom up](http://ftp.newartisans.com/pub/git.from.bottom.up.pdf): A book to learn git by first understanding the simplicity and beauty of its internals.
+- [Git Magic](http://www-cs-students.stanford.edu/~blynn/gitmagic/): complete opposite of "Git from the bottom up" in that it treats Git as a magical gizmo you'll learn to use without drowning into the underlying storage and history model.
+- [Git questions on StackOverflow](http://stackoverflow.com/questions/tagged/git): comprehensive coverage of advanced matters.
+- [Top 10 Git Tutorials for Beginners](http://sixrevisions.com/resources/git-tutorials-beginners/): A list of tutorials and resources. Contains another list of far more than 10 sites at the end.
