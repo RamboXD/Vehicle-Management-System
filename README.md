@@ -39,3 +39,4 @@
 ## Tasks for this week 31.08 - 07.09:
 
 - Added bot for workflow
+
