@@ -17,6 +17,8 @@
    - Alipova Ardak
 4. Design Team - Presentation - **Figma**
    - Kuzenbayeva Aruzhan
+   - https://www.figma.com/file/Qx1dAnXoaF5Crlz1k83x0B/SWE-Hello-World?type=design&node-id=0%3A1&mode=design&t=CbupYFdGsMmjqto4-1
+     
 
 ## Diagram
 
