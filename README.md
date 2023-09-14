@@ -20,6 +20,10 @@
    - https://www.figma.com/file/Qx1dAnXoaF5Crlz1k83x0B/SWE-Hello-World?type=design&node-id=0%3A1&mode=design&t=CbupYFdGsMmjqto4-1
      
 
+**Documentation**
+
+- ![Link](https://www.notion.so/Projects-Tasks-10c50f831e9e4fba92afa67c54b27f87)
+
 ## Diagram
 
 ![Diagram](https://github.com/RamboXD/CSCI-361-Section-7-Group-4/blob/main/HelloWorldTeam.drawio.png)
