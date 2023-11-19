@@ -2,7 +2,6 @@ package routes
 
 import (
 	"github.com/RamboXD/SRS/controllers"
-	"github.com/RamboXD/SRS/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +15,7 @@ func NewRouteUserController(userController controllers.UserController) UserRoute
 
 func (uc *UserRouteController) UserRoute(rg *gin.RouterGroup) {
 
-	router := rg.Group("users")
-	router.GET("/me", middleware.DeserializeUser(), uc.userController.GetMe)
+	// router := rg.Group("users")
+	// router.GET("/me", middleware.DeserializeUser(), uc.userController.GetMe)
 }
 

@@ -15,11 +15,15 @@ func NewAuthRouteController(authController controllers.AuthController) AuthRoute
 }
 
 func (rc *AuthRouteController) AuthRoute(rg *gin.RouterGroup) {
-	router := rg.Group("/auth")
+    authRouter := rg.Group("/auth")
 
-	router.POST("/register", rc.authController.SignUpUser)
-	router.POST("/login", rc.authController.SignInUser)
-	router.GET("/refresh", rc.authController.RefreshAccessToken)
-	router.GET("/logout", middleware.DeserializeUser(), rc.authController.LogoutUser)
+    authRouter.POST("/login", rc.authController.SignInUser)
+    // authRouter.GET("/logout", middleware.DeserializeUser(), rc.authController.LogoutUser)
+
+    registerRouter := authRouter.Group("/register")
+    registerRouter.POST("/admin", rc.authController.SignUpAdmin) 
+    registerRouter.POST("/driver", middleware.DeserializeAdmin(), rc.authController.SignUpDriver) 
+    registerRouter.POST("/maintenance", middleware.DeserializeAdmin(), rc.authController.SignUpMaintenancePerson) 
+    registerRouter.POST("/fueling", middleware.DeserializeAdmin(), rc.authController.SignUpFuelingPerson) 
 }
 

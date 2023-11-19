@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/RamboXD/SRS/dto/response"
 	"github.com/RamboXD/SRS/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -19,13 +20,9 @@ func NewUserController(DB *gorm.DB) UserController {
 func (uc *UserController) GetMe(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
 
-	userResponse := &models.UserResponse{
+	userResponse := &response.UserResponse{
 		ID:        currentUser.ID,
-		Name:      currentUser.Name,
 		Email:     currentUser.Email,
-		Photo:     currentUser.Photo,
-		Role:      currentUser.Role,
-		Provider:  currentUser.Provider,
 		CreatedAt: currentUser.CreatedAt,
 		UpdatedAt: currentUser.UpdatedAt,
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DeserializeUser() gin.HandlerFunc {
+func DeserializeAdmin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var access_token string
 		cookie, err := ctx.Cookie("access_token")
@@ -43,6 +43,12 @@ func DeserializeUser() gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "the user belonging to this token no logger exists"})
 			return
 		}
+
+		if user.AdminID == nil {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "Access zhokkoi bratishka"})
+			return
+		}
+
 
 		ctx.Set("currentUser", user)
 		ctx.Next()
