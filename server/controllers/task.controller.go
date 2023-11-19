@@ -74,6 +74,13 @@ func (tc *TaskController) AssignToMe(ctx *gin.Context) {
         return
     }
 
+	// Check if the driver has a vehicle
+	var vehicle models.Vehicle
+	if result := tc.DB.First(&vehicle, "assigned_driver_id = ?", currentUser.DriverID); result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "To do the task, first get the vehicle!"})
+        return
+	}
+
     // Assign the driver to the task
     task.AssignedDriverID = currentUser.DriverID
     task.Status = "in_progress"
@@ -134,10 +141,24 @@ func (tc *TaskController) FinishTask(ctx *gin.Context) {
 		return
 	}
 
+	// Retrieve the vehicle
+	var vehicle models.Vehicle
+	if result := tc.DB.First(&vehicle, "assigned_driver_id = ?", currentUser.DriverID); result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Where is your vehicle?!"})
+        return
+	}
+
 	task.Status = "finished"
+	vehicle.TotalDistanceCovered = vehicle.TotalDistanceCovered + task.Distance	
 
 	// Save the updated task record
     if result := tc.DB.Save(&task); result.Error != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+        return
+    }
+
+	// Save the updated vehicle record
+    if result := tc.DB.Save(&vehicle); result.Error != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
         return
     }
