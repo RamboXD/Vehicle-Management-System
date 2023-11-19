@@ -17,6 +17,11 @@ func NewTaskController(DB *gorm.DB) TaskController {
 	return TaskController{DB}
 }
 
+/*
+Нөвій тәск қосу
+=====================================================================================================================
+*/
+
 func (tc *TaskController) CreateTask(ctx *gin.Context) {
 	var task *models.Task
 
@@ -34,6 +39,11 @@ func (tc *TaskController) CreateTask(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": task})
 
 }
+
+/*
+Шәфөрге тәск беру
+=====================================================================================================================
+*/
 
 func (tc *TaskController) AssignToMe(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
@@ -78,6 +88,11 @@ func (tc *TaskController) AssignToMe(ctx *gin.Context) {
 
 }
 
+/*
+Шәфөр тәскті бітірді
+=====================================================================================================================
+*/
+
 func (tc *TaskController) FinishTask(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
 
@@ -109,7 +124,7 @@ func (tc *TaskController) FinishTask(ctx *gin.Context) {
 	
 	// Check if the task is assigned to current driver
 	if *task.AssignedDriverID != driver.DriverID {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "This is not your task"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "This is not your task, Raiymbek!!!"})
 		return 
 	}
 
@@ -129,6 +144,11 @@ func (tc *TaskController) FinishTask(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Task finished by driver successfully"})
 }
+
+/*
+Шәфөрдің тәсктерін алу
+=====================================================================================================================
+*/
 
 func (tc *TaskController) GetTasks(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
