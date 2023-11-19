@@ -24,6 +24,7 @@ func main() {
 	initializers.DB.AutoMigrate(&models.Driver{})
 	initializers.DB.AutoMigrate(&models.FuelingPerson{})
 	initializers.DB.AutoMigrate(&models.MaintenancePerson{})
+	initializers.DB.AutoMigrate(&models.Vehicle{})
 	fmt.Println("? Migration complete")
 }
 

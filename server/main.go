@@ -18,6 +18,9 @@ var (
 
 	UserController      controllers.UserController
 	UserRouteController routes.UserRouteController
+
+	VehicleController      controllers.VehicleController
+	VehicleRouteController routes.VehicleRouteController
 )
 
 func init() {
@@ -33,6 +36,9 @@ func init() {
 
 	UserController = controllers.NewUserController(initializers.DB)
 	UserRouteController = routes.NewRouteUserController(UserController)
+
+	VehicleController = controllers.NewVehicleController(initializers.DB)
+	VehicleRouteController = routes.NewRouteVehicleController(VehicleController)
 
 	server = gin.Default()
 }
@@ -57,6 +63,7 @@ func main() {
 
 	AuthRouteController.AuthRoute(router)
 	UserRouteController.UserRoute(router)
+	VehicleRouteController.VehicleRoute(router)
 	log.Fatal(server.Run(":" + config.ServerPort))
 }
 
