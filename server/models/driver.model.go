@@ -18,4 +18,5 @@ type Driver struct {
     DrivingLicenseCode string
     Vehicle          *Vehicle  `gorm:"foreignKey:AssignedDriverID;references:DriverID"`
     User             User `gorm:"foreignkey:UserID"`
+    Tasks []*Task  `gorm:"foreignkey:AssignedDriverID"`
 }
