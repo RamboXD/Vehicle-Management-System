@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DeserializeAdmin() gin.HandlerFunc {
+func DeserializeDriver() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var access_token string
 		cookie, err := ctx.Cookie("access_token")
@@ -44,8 +44,8 @@ func DeserializeAdmin() gin.HandlerFunc {
 			return
 		}
 
-		if user.AdminID == nil {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "Access zhokkoi bratishka, Admin bolu kerek"})
+		if user.DriverID == nil {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "Access zhokkoi bratishka, Driver Bolu kerek"})
 			return
 		}
 
