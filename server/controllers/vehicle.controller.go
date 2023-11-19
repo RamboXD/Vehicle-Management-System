@@ -52,7 +52,7 @@ func (vc *VehicleController) AssignToDriver(ctx *gin.Context) {
         return
     }
 
-    // Check if the vehicle already has a driver
+    // Check if a driver already has a vehicle
     var existingVehicle models.Vehicle
     if result := vc.DB.Where("assigned_driver_id = ?", req.DriverID).First(&existingVehicle); result.Error == nil {
         ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Driver already has a vehicle assigned"})

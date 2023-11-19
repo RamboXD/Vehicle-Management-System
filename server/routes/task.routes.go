@@ -17,5 +17,8 @@ func NewRouteTaskController(taskController controllers.TaskController) TaskRoute
 func (tc *TaskRouteController) TaskRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/task")
 	router.POST("/create", middleware.DeserializeAdmin(), tc.TaskController.CreateTask)
+	router.POST("/assign", middleware.DeserializeDriver(), tc.TaskController.AssignToMe)
+	router.POST("/finish", middleware.DeserializeDriver(), tc.TaskController.FinishTask)
+	router.GET("/tasks", middleware.DeserializeDriver(), tc.TaskController.GetTasks)
 }
 
