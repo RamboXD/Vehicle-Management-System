@@ -16,7 +16,6 @@ type FuelingDetail struct {
     FuelCost            float64   `gorm:"type:decimal(10,2)"`
     GasStationName      string    `gorm:"type:varchar(255)"`
     FuelType            string    `gorm:"type:varchar(100)"`
-    OdometerReading     int       `gorm:"type:int"`
     FuelingReceiptImage string    `gorm:"type:text"`
 }
 

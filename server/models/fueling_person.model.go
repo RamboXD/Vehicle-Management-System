@@ -13,6 +13,7 @@ type FuelingPerson struct {
     Surname          string
     MiddleName       string
     User              User `gorm:"foreignkey:UserID"`
+    FuelingDetails    []FuelingDetail `gorm:"foreignKey:FuelingPersonID"`
 }
 
 

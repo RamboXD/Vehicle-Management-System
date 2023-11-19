@@ -21,4 +21,5 @@ type Vehicle struct {
     Photo                string     `gorm:"type:text"`
     Status               string     `gorm:"type:varchar(100)"` 
     Driver                *Driver    `gorm:"foreignKey:AssignedDriverID"`
+    FuelingDetails        []FuelingDetail `gorm:"foreignKey:VehicleID"`
 }

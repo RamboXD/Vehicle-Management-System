@@ -176,6 +176,8 @@ func (ac *AuthController) SignUpMaintenancePerson(ctx *gin.Context) {
         return
     }
     newUser.MaintenancePersonID = &newMaintenancePerson.MaintenancePersonID
+    ac.DB.Save(&newUser)
+    
     userResponse := response.NewUserResponse(*newUser, nil, newMaintenancePerson, nil, nil)
     ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": gin.H{"user": userResponse}})
 }
@@ -228,6 +230,7 @@ func (ac *AuthController) SignUpFuelingPerson(ctx *gin.Context) {
         return
     }
     newUser.FuelingPersonID = &newFuelingPerson.FuelingPersonID
+    ac.DB.Save(&newUser)
 
     userResponse := response.NewUserResponse(*newUser, nil, nil, newFuelingPerson, nil)
     ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": gin.H{"user": userResponse}})

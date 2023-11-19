@@ -22,9 +22,10 @@ func main() {
 	initializers.DB.AutoMigrate(&models.User{})
 	initializers.DB.AutoMigrate(&models.Admin{})
 	initializers.DB.AutoMigrate(&models.Driver{})
-	initializers.DB.AutoMigrate(&models.FuelingPerson{})
-	initializers.DB.AutoMigrate(&models.MaintenancePerson{})
 	initializers.DB.AutoMigrate(&models.Vehicle{})
+	initializers.DB.AutoMigrate(&models.FuelingPerson{})
+	initializers.DB.AutoMigrate(&models.FuelingDetail{})
+	initializers.DB.AutoMigrate(&models.MaintenancePerson{})
 	initializers.DB.AutoMigrate(&models.Task{})
 	fmt.Println("? Migration complete")
 }
