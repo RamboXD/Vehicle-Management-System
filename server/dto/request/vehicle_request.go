@@ -1,10 +1,13 @@
 package request
 
-// import "github.com/RamboXD/SRS/models"
+import "github.com/google/uuid"
 
-type VehicleAddInput struct {
-	Name            string `json:"name" binding:"required"`
-	Email           string `json:"email" binding:"required"`
-	Password        string `json:"password" binding:"required,min=8"`
-	Photo           string `json:"photo" binding:"required"`
+
+type AssignRequest struct {
+	DriverID  uuid.UUID `json:"driverId"`
+	VehicleID uuid.UUID `json:"vehicleId"`
+}
+
+type UnassignRequest struct {
+	VehicleID uuid.UUID `json:"vehicleId"`
 }

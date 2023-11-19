@@ -17,5 +17,7 @@ func NewRouteVehicleController(vehicleController controllers.VehicleController) 
 func (vc *VehicleRouteController) VehicleRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/vehicle")
 	router.POST("/add", middleware.DeserializeAdmin(), vc.vehicleController.Add)
+	router.POST("/assign", middleware.DeserializeAdmin(), vc.vehicleController.AssignToDriver)
+	router.POST("/unassign", middleware.DeserializeAdmin(), vc.vehicleController.UnassignDriver)
 }
 
