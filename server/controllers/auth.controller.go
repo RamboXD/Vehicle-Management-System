@@ -263,7 +263,19 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": access_token})
+	if user.AdminID != nil {
+		ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": access_token})
+	} else {
+		var role string
+		if user.DriverID != nil {
+			role = "driver"
+		} else if user.MaintenancePersonID != nil {
+			role = "maintenance_person"
+		} else if user.FuelingPersonID != nil {
+			role = "fueling_person"
+		}
+		ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": access_token, "role": role})
+	}
 }
 
 func handleUserCreationError(ctx *gin.Context, err error) {
