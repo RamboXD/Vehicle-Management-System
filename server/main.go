@@ -22,11 +22,20 @@ var (
 	VehicleController      controllers.VehicleController
 	VehicleRouteController routes.VehicleRouteController
 
-	TaskController 		controllers.TaskController
+	TaskController      controllers.TaskController
 	TaskRouteController routes.TaskRouteController
 
-	FuelingController 		controllers.FuelingController
+	FuelingController      controllers.FuelingController
 	FuelingRouteController routes.FuelingRouteController
+
+	DriverController      controllers.DriverController
+	DriverRouteController routes.DriverRouteController
+
+	MaintenancePersonController      controllers.MaintenancePersonController
+	MaintenancePersonRouteController routes.MaintenancePersonRouteController
+
+	FuelingPersonController      controllers.FuelingPersonController
+	FuelingPersonRouteController routes.FuelingPersonRouteController
 )
 
 func init() {
@@ -51,8 +60,16 @@ func init() {
 
 	FuelingController = controllers.NewFuelingController(initializers.DB)
 	FuelingRouteController = routes.NewRouteFuelingController(FuelingController)
-	
-	
+
+	DriverController = controllers.NewDriverController(initializers.DB)
+	DriverRouteController = routes.NewRouteDriverController(DriverController)
+
+	MaintenancePersonController = controllers.NewMaintenancePersonController(initializers.DB)
+	MaintenancePersonRouteController = routes.NewRouteMaintenancePersonController(MaintenancePersonController)
+
+	FuelingPersonController = controllers.NewFuelingPersonController(initializers.DB)
+	FuelingPersonRouteController = routes.NewRouteFuelingPersonController(FuelingPersonController)
+
 	server = gin.Default()
 }
 
@@ -79,6 +96,8 @@ func main() {
 	VehicleRouteController.VehicleRoute(router)
 	TaskRouteController.TaskRoute(router)
 	FuelingRouteController.FuelingRoute(router)
+	DriverRouteController.DriverRoute(router)
+	MaintenancePersonRouteController.MaintenancePersonRoute(router)
+	FuelingPersonRouteController.FuelingPersonRoute(router)
 	log.Fatal(server.Run(":" + config.ServerPort))
 }
-
