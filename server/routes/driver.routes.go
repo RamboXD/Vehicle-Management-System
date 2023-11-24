@@ -17,4 +17,5 @@ func NewRouteDriverController(driverController controllers.DriverController) Dri
 func (dc *DriverRouteController) DriverRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/driver")
 	router.GET("/drivers/", middleware.DeserializeAdmin(), dc.DriverController.GetAllDrivers)
+	router.PUT("/update/", middleware.DeserializeDriver(), dc.DriverController.UpdateProfileInfo)
 }

@@ -17,4 +17,5 @@ func NewRouteFuelingPersonController(fuelingPersonController controllers.Fueling
 func (fc *FuelingPersonRouteController) FuelingPersonRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/fueling_person")
 	router.GET("/fueling_persons/", middleware.DeserializeAdmin(), fc.FuelingPersonController.GetAllFuelingPersons)
+	router.PUT("/update", middleware.DeserializeFuelingPerson(), fc.FuelingPersonController.UpdateProfileInfo)
 }

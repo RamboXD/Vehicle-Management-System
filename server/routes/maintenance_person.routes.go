@@ -14,7 +14,8 @@ func NewRouteMaintenancePersonController(maintenancePersonController controllers
 	return MaintenancePersonRouteController{maintenancePersonController}
 }
 
-func (dc *MaintenancePersonRouteController) MaintenancePersonRoute(rg *gin.RouterGroup) {
+func (mc *MaintenancePersonRouteController) MaintenancePersonRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/maintenance_person")
-	router.GET("/maintenance_persons/", middleware.DeserializeAdmin(), dc.MaintenancePersonController.GetAllMaintenancePersons)
+	router.GET("/maintenance_persons/", middleware.DeserializeAdmin(), mc.MaintenancePersonController.GetAllMaintenancePersons)
+	router.PUT("/update", middleware.DeserializeMaintenancePerson(), mc.MaintenancePersonController.UpdateProfileInfo)
 }
