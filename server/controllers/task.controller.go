@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/RamboXD/SRS/dto/request"
 	"github.com/RamboXD/SRS/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -47,16 +46,11 @@ func (tc *TaskController) CreateTask(ctx *gin.Context) {
 
 func (tc *TaskController) AssignToMe(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
-
-	var req request.AssignToMeRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
-		return
-	}
+	taskID := ctx.Param("taskID")
 
 	// Retrieve the task to be assigned
 	var task models.Task
-	if result := tc.DB.First(&task, "task_id = ?", req.TaskID); result.Error != nil {
+	if result := tc.DB.First(&task, "task_id = ?", taskID); result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Task not found"})
 		return
 	}
@@ -70,14 +64,21 @@ func (tc *TaskController) AssignToMe(ctx *gin.Context) {
 	// Retrieve the driver
 	var driver models.Driver
 	if result := tc.DB.First(&driver, "driver_id = ?", currentUser.DriverID); result.Error != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Driver not found"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Driver not found"})
 		return
 	}
 
 	// Check if the driver has a vehicle
 	var vehicle models.Vehicle
 	if result := tc.DB.First(&vehicle, "assigned_driver_id = ?", currentUser.DriverID); result.Error != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "To do the task, first get the vehicle!"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "To do the task, first get a vehicle"})
+		return
+	}
+
+	// Check if the driver has a task
+	var existing_task models.Task
+	if result := tc.DB.First(&existing_task, "assigned_driver_id = ? and status = 'in_progress'", currentUser.DriverID); result.Error == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "You already have a task to complete"})
 		return
 	}
 
@@ -103,15 +104,11 @@ func (tc *TaskController) AssignToMe(ctx *gin.Context) {
 func (tc *TaskController) FinishTask(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
 
-	var req request.FinishTask
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
-		return
-	}
+	taskID := ctx.Param("taskID")
 
 	// Retrieve the task to be finished
 	var task models.Task
-	if result := tc.DB.First(&task, "task_id = ?", req.TaskID); result.Error != nil {
+	if result := tc.DB.First(&task, "task_id = ?", taskID); result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Task not found"})
 		return
 	}
@@ -167,11 +164,11 @@ func (tc *TaskController) FinishTask(ctx *gin.Context) {
 }
 
 /*
-Шәфөрдің тәсктерін алу
+Шәфөрдің тәскін алу
 =====================================================================================================================
 */
 
-func (tc *TaskController) GetTasks(ctx *gin.Context) {
+func (tc *TaskController) GetMyTasks(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(models.User)
 
 	// Retrieve the driver

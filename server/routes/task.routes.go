@@ -17,10 +17,12 @@ func NewRouteTaskController(taskController controllers.TaskController) TaskRoute
 func (tc *TaskRouteController) TaskRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/task")
 	router.POST("/create", middleware.DeserializeAdmin(), tc.TaskController.CreateTask)
-	router.POST("/assign", middleware.DeserializeDriver(), tc.TaskController.AssignToMe)
-	router.POST("/finish", middleware.DeserializeDriver(), tc.TaskController.FinishTask)
-	router.GET("/tasks/my", middleware.DeserializeDriver(), tc.TaskController.GetTasks)
-	router.DELETE("/tasks/delete/:taskID", middleware.DeserializeAdmin(), tc.TaskController.DeleteTask)
-	router.PUT("/tasks/update/:taskID", middleware.DeserializeAdmin(), tc.TaskController.UpdateTask)
-	router.GET("/tasks", middleware.DeserializeAdminAndDriver(), tc.TaskController.GetAllTasks)
+
+	taskRouter := router.Group("/tasks")
+	taskRouter.POST("/assign/:taskID", middleware.DeserializeDriver(), tc.TaskController.AssignToMe)
+	taskRouter.POST("/finish/:taskID", middleware.DeserializeDriver(), tc.TaskController.FinishTask)
+	taskRouter.GET("/my", middleware.DeserializeDriver(), tc.TaskController.GetMyTasks)
+	taskRouter.DELETE("/delete/:taskID", middleware.DeserializeAdmin(), tc.TaskController.DeleteTask)
+	taskRouter.PUT("/update/:taskID", middleware.DeserializeAdmin(), tc.TaskController.UpdateTask)
+	taskRouter.GET("/", middleware.DeserializeAdminAndDriver(), tc.TaskController.GetAllTasks)
 }
