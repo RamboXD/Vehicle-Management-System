@@ -19,5 +19,7 @@ func (vc *VehicleRouteController) VehicleRoute(rg *gin.RouterGroup) {
 	router.POST("/add", middleware.DeserializeAdmin(), vc.vehicleController.Add)
 	router.POST("/assign", middleware.DeserializeAdmin(), vc.vehicleController.AssignToDriver)
 	router.POST("/unassign", middleware.DeserializeAdmin(), vc.vehicleController.UnassignDriver)
+	router.GET("/vehicles", middleware.DeserializeNotDriver(), vc.vehicleController.GetAllVehicles)
+	router.PUT("/vehicles/update/:vehicleID", middleware.DeserializeNotDriver(), vc.vehicleController.UpdateVehicle)
+	router.DELETE("/vehicles/delete/:vehicleID", middleware.DeserializeAdmin(), vc.vehicleController.DeleteVehicle)
 }
-

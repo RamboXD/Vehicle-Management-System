@@ -122,7 +122,7 @@ func (vc *VehicleController) UnassignDriver(ctx *gin.Context) {
 }
 
 /*
-Get All Tasks
+Get All Vehicles
 =====================================================================================================================
 */
 
@@ -135,4 +135,56 @@ func (vc *VehicleController) GetAllVehicles(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "vehicles": vehicles})
+}
+
+/*
+Delete the vehicle by id
+=====================================================================================================================
+*/
+
+func (vc *VehicleController) DeleteVehicle(ctx *gin.Context) {
+	vehicleID := ctx.Param("vehicleID")
+
+	var vehicle models.Vehicle
+	if result := vc.DB.First(&vehicle, "vehicle_id = ?", vehicleID); result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+		return
+	}
+
+	if result := vc.DB.Delete(vehicle); result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
+
+}
+
+/*
+Update the vehicle by id
+=====================================================================================================================
+*/
+
+func (vc *VehicleController) UpdateVehicle(ctx *gin.Context) {
+	vehicleID := ctx.Param("vehicleID")
+
+	var payload models.Vehicle
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+		return
+	}
+
+	var vehicle models.Vehicle
+	if result := vc.DB.First(&vehicle, "vehicle_id = ?", vehicleID); result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+		return
+	}
+
+	if result := vc.DB.Model(&vehicle).Updates(payload); result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "vehicle": vehicle})
+
 }
