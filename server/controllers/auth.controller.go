@@ -114,6 +114,7 @@ func (ac *AuthController) SignUpDriver(ctx *gin.Context) {
 
 	newDriver := payload.Driver
 	newDriver.UserID = newUser.ID
+	newDriver.HasVehicle = false
 	// log.Printf("New Driver: %+v\n", newDriver)
 	driverResult := ac.DB.Create(&newDriver)
 	if driverResult.Error != nil {

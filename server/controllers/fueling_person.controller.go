@@ -59,3 +59,20 @@ func (fc *FuelingPersonController) UpdateProfileInfo(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "fueling_person": fuelingPerson})
 }
+
+/*
+Get Fueling Person Info with id
+=====================================================================================================================
+*/
+
+func (fc *FuelingPersonController) GetProfileInfo(ctx *gin.Context) {
+	fuelingPersonID := ctx.Param("fuelingPersonID")
+
+	var fuelingPerson models.FuelingPerson
+	if result := fc.DB.Preload("FuelingDetails").Preload("User").Find(&fuelingPerson, "fueling_person_id = ?", fuelingPersonID); result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Fueling person not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "fueling_person": fuelingPerson})
+}

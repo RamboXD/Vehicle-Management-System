@@ -18,4 +18,5 @@ func (mc *MaintenancePersonRouteController) MaintenancePersonRoute(rg *gin.Route
 	router := rg.Group("/maintenance_person")
 	router.GET("/maintenance_persons/", middleware.DeserializeAdmin(), mc.MaintenancePersonController.GetAllMaintenancePersons)
 	router.PUT("/update", middleware.DeserializeMaintenancePerson(), mc.MaintenancePersonController.UpdateProfileInfo)
+	router.GET("/maintenance_persons/:maintenancePersonID", middleware.DeserializeAdmin(), mc.MaintenancePersonController.GetProfileInfo)
 }

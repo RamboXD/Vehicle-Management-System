@@ -59,3 +59,20 @@ func (mc *MaintenancePersonController) UpdateProfileInfo(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "maintenance_person": maintenancePerson})
 }
+
+/*
+Get Maintenance Person Info with id
+=====================================================================================================================
+*/
+
+func (mc *MaintenancePersonController) GetProfileInfo(ctx *gin.Context) {
+	maintenancePersonID := ctx.Param("maintenancePersonID")
+
+	var maintenancePerson models.MaintenancePerson
+	if result := mc.DB.Preload("User").Find(&maintenancePerson, "maintenance_person_id = ?", maintenancePersonID); result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Maintenance Person not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "maintenance_person": maintenancePerson})
+}

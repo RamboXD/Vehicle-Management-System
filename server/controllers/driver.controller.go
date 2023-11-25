@@ -59,3 +59,36 @@ func (dc *DriverController) UpdateProfileInfo(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "driver": driver})
 }
+
+/*
+Get All Drivers with no vehicle
+=====================================================================================================================
+*/
+
+func (dc *DriverController) GetAllDriversWitnNoVehicle(ctx *gin.Context) {
+
+	var drivers []models.Driver
+	if result := dc.DB.Preload("Vehicle").Preload("Tasks").Preload("User").Find(&drivers, "has_vehicle = false"); result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "drivers": drivers})
+}
+
+/*
+Get Driver Info with id
+=====================================================================================================================
+*/
+
+func (dc *DriverController) GetProfileInfo(ctx *gin.Context) {
+	driverID := ctx.Param("driverID")
+
+	var driver models.Driver
+	if result := dc.DB.Preload("Vehicle").Preload("Tasks").Preload("User").Find(&driver, "driver_id = ?", driverID); result.Error != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Driver not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "driver": driver})
+}

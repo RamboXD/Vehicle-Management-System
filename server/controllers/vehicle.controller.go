@@ -89,6 +89,14 @@ func (vc *VehicleController) AssignToDriver(ctx *gin.Context) {
 		return
 	}
 
+	// Change status of the driver
+	driver.HasVehicle = true
+
+	// Save the updated driver record
+	if result := vc.DB.Save(&driver); result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Vehicle assigned to driver successfully"})
 }
 
