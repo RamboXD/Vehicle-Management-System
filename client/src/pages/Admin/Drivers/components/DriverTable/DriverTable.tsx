@@ -18,7 +18,6 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -37,79 +36,84 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Modal } from "@/pages/Admin";
+import { Driver, DriverProfileRega } from "../../types/types";
 
-const data: Payment[] = [
+const data: Driver[] = [
   {
-    id: "m5gr84i9",
-    amount: 316,
-    status: "success",
-    email: "ken99@yahoo.com",
+    DriverID: "6de90cb4-3cd2-4000-a4e2-41c9f78aee5b",
+    UserID: "f5cf02d2-15f8-4628-b1d0-2b0181cdbd98",
+    Government: "gov-id-123",
+    Name: "John",
+    Surname: "Doe",
+    MiddleName: "Allen",
+    Address: "123 Main Street",
+    Phone: "555-1234",
+    Email: "john.doe@example.com",
+    DrivingLicenseCode: "ABCD1234",
   },
   {
-    id: "3u1reuv4",
-    amount: 242,
-    status: "success",
-    email: "Abe45@gmail.com",
+    DriverID: "7fb90dc4-4cd2-4001-b5e2-41c9f78aee6c",
+    UserID: "g6cf02d2-25f8-4629-c2d0-3b0181cdbd99",
+    Government: "gov-id-456",
+    Name: "Alice",
+    Surname: "Smith",
+    MiddleName: "Beth",
+    Address: "456 Elm Street",
+    Phone: "555-5678",
+    Email: "alice.smith@example.com",
+    DrivingLicenseCode: "EFGH5678",
   },
   {
-    id: "derv1ws0",
-    amount: 837,
-    status: "processing",
-    email: "Monserrat44@gmail.com",
+    DriverID: "8gd91ed5-5ed3-5002-c6f3-52d9f89bfe7d",
+    UserID: "h7dg03e3-35g9-5730-d3e1-4c0292eceb00",
+    Government: "gov-id-789",
+    Name: "Bob",
+    Surname: "Johnson",
+    MiddleName: "Charles",
+    Address: "789 Maple Avenue",
+    Phone: "555-9012",
+    Email: "bob.johnson@example.com",
+    DrivingLicenseCode: "IJKL9012",
   },
   {
-    id: "5kma53ae",
-    amount: 874,
-    status: "success",
-    email: "Silas22@gmail.com",
+    DriverID: "9he92fe6-6fe4-6003-d7g4-63eaf9acf8ee",
+    UserID: "i8eh04f4-45ha-6841-e4f2-5d0393fdec11",
+    Government: "gov-id-101",
+    Name: "Carol",
+    Surname: "Williams",
+    MiddleName: "Diane",
+    Address: "101 Oak Circle",
+    Phone: "555-3456",
+    Email: "carol.williams@example.com",
+    DrivingLicenseCode: "MNOP3456",
   },
   {
-    id: "bhqecj4p",
-    amount: 721,
-    status: "failed",
-    email: "carmella@hotmail.com",
+    DriverID: "afg93gg7-7gh5-7004-e8h5-74fbg0bdg9ff",
+    UserID: "j9fi05g5-55ib-7942-f5g3-6e0494gdfg22",
+    Government: "gov-id-202",
+    Name: "David",
+    Surname: "Brown",
+    MiddleName: "Edward",
+    Address: "202 Pine Street",
+    Phone: "555-7890",
+    Email: "david.brown@example.com",
+    DrivingLicenseCode: "QRST7890",
   },
 ];
 
-export type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Driver>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
+    id: "fullName",
+    header: "Full Name",
+    accessorFn: (row) => `${row.Name} ${row.Surname}`,
+    cell: ({ getValue }) => {
+      const fullName = getValue() as string; // Cast the value to string
+      return <div className="capitalize">{fullName}</div>;
+    },
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
+    accessorKey: "Email",
     header: ({ column }) => {
       return (
         <Button
@@ -121,28 +125,23 @@ export const columns: ColumnDef<Payment>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => <div className="lowercase">{row.getValue("Email")}</div>,
   },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
+    accessorKey: "DrivingLicenseCode",
+    header: "License Code",
+    cell: ({ row }) => <div>{row.getValue("DrivingLicenseCode")}</div>,
+  },
+  {
+    accessorKey: "Phone",
+    header: "Phone",
+    cell: ({ row }) => <div>{row.getValue("Phone")}</div>,
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const driver = row.original;
 
       return (
         <DropdownMenu>
@@ -155,13 +154,12 @@ export const columns: ColumnDef<Payment>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(driver.DriverID)}
             >
-              Copy payment ID
+              Copy Driver ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>View Driver Details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -170,6 +168,23 @@ export const columns: ColumnDef<Payment>[] = [
 ];
 
 export function DriverTable() {
+  const [profileData, setProfileData] = React.useState<DriverProfileRega>({
+    user: {
+      email: "",
+      password: "",
+    },
+    driver: {
+      government: "",
+      name: "",
+      surname: "",
+      middleName: "",
+      address: "",
+      phone: "",
+      email: "",
+      drivingLicenseCode: "",
+    },
+  });
+  console.log(profileData);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -196,18 +211,25 @@ export function DriverTable() {
       rowSelection,
     },
   });
-
+  const globalFilterValue = table.getState().globalFilter ?? "";
+  const onGlobalFilterChange = (value: string) => {
+    table.setGlobalFilter(value);
+  };
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
+          placeholder="Filter..."
+          value={globalFilterValue}
+          onChange={(event) => onGlobalFilterChange(event.target.value)}
+          className="max-w-sm mr-5"
         />
+        <Modal
+          content={"Create Driver"}
+          profileData={profileData}
+          setProfileData={setProfileData}
+        />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -286,10 +308,6 @@ export function DriverTable() {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
         <div className="space-x-2">
           <Button
             variant="outline"

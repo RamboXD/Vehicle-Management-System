@@ -1,10 +1,12 @@
 import React from "react";
 import { Layout } from "@/components";
+import { VehiclesTable } from "./components";
 
 const Vehicles: React.FC = () => {
   return (
     <Layout>
-      <>Vehicles</>
+      <p className="text-xl font-semibold">Vehicles</p>
+      <VehiclesTable />
     </Layout>
   );
 };

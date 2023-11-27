@@ -1,9 +1,14 @@
-const Landing: React.FC = () => {
+import { NextSeo } from "next-seo";
+import { Footer, Header, Main } from "./components";
+const Vehicles: React.FC = () => {
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
-      Landing page
+    <div className="text-black bg-black">
+      <NextSeo title="Home: VMS" description="Welcome to VMS homepage." />
+      <Header />
+      <Main />
+      <Footer />
     </div>
   );
 };
 
-export default Landing;
+export default Vehicles;
