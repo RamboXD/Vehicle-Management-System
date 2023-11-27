@@ -24,7 +24,7 @@ Get All Drivers
 func (dc *DriverController) GetAllDrivers(ctx *gin.Context) {
 
 	var drivers []models.Driver
-	if result := dc.DB.Preload("User").Find(&drivers); result.Error != nil {
+	if result := dc.DB.Preload("User").Preload("Vehicle").Find(&drivers); result.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
 		return
 	}
