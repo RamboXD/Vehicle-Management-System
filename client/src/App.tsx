@@ -9,7 +9,9 @@ const isAuthenticated = () => {
   const token = localStorage.getItem("token");
   return !!token;
 };
-
+const getUserRole = () => {
+  return localStorage.getItem("role");
+};
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -21,8 +23,20 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (isAuthenticated()) {
-    return <Navigate to="/member/jobs" replace />;
+    const role = getUserRole();
+    if (role === "admin") {
+      return <Navigate to="/admin/drivers" replace />;
+    }
+    if (role === "driver") {
+      return <Navigate to="/driver/tasks" replace />;
+    }
+    if (role === "maintenance_person") {
+      return <Navigate to="/maintenance/tasks" replace />;
+    }
+
+    return <Navigate to="/" replace />;
   }
+
   return <>{children}</>;
 };
 

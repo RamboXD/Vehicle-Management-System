@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DriverProfileRega } from "../Drivers/types/types";
+import { DriverProfileRega } from "../types/types";
+import { useState } from "react";
+import $api from "@/http";
 
 interface ModalProps {
   content: string;
@@ -18,6 +20,7 @@ interface ModalProps {
   setProfileData: React.Dispatch<React.SetStateAction<DriverProfileRega>>;
 }
 export function Modal({ content, profileData, setProfileData }: ModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (name.startsWith("user.")) {
@@ -38,6 +41,22 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
       }));
     }
   };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await $api.post("/auth/register/driver", profileData);
+      console.log(response);
+      setTimeout(() => {
+        setIsLoading(false);
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error submitting data:", error);
+    }
+  };
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -50,11 +69,7 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
             Create user and driver details below.
           </DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <Field
               name="user.email"
@@ -120,7 +135,9 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
             />
           </div>
           <DialogFooter>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

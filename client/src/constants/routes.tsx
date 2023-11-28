@@ -1,13 +1,13 @@
 import { Login } from "@/pages";
 import { Drivers, Fuels, Maintenance, Tasks, Vehicles } from "@/pages/Admin";
-import { Jobs } from "@/pages/Administration";
-import Caregivers from "@/pages/Administration/Deals/Caregivers";
-import Appointments from "@/pages/Administration/Employees/Appointments";
-import JobApplicants from "@/pages/Administration/Organizations/JobApplicants";
-import ApplicationList from "@/pages/Caregiver/Applications/ApplicationList";
-import AppointmentList from "@/pages/Caregiver/Appointments/AppointmentList";
-import JobList from "@/pages/Caregiver/Jobs/JobList";
+import Driver from "@/pages/Admin/Drivers/components/DriverTable/Driver";
+import FuelingPerson from "@/pages/Admin/Fuels/components/FuelingTable/Fueling";
+import MaintenancePerson from "@/pages/Admin/Maintenance/components/MaintenanceTable/MaintenancePerson";
+import { DriverProfile } from "@/pages/Driver/Profile/DriverProfile";
+import UnTasks from "@/pages/Driver/UnTasks/UnTasks";
 import Landing from "@/pages/Landing/Landing";
+import CreateMaintenance from "@/pages/Maintenance/CreateMaintenance/CreateMaintenance";
+import { MaintenanceProfile } from "@/pages/Maintenance/Profile/MaintenanceProfile";
 import { IRoute, Role } from "@/ts/types";
 
 export const routes: IRoute[] = [
@@ -27,93 +27,86 @@ export const routes: IRoute[] = [
   },
   {
     name: "Drivers",
-    path: "/drivers",
+    path: "/admin/drivers",
     component: <Drivers />,
     roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: true,
+    isPublic: false,
+  },
+  {
+    name: "Drivers",
+    path: "/admin/driver/:id",
+    component: <Driver />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
   },
   {
     name: "Fueling people",
-    path: "/fuels",
+    path: "/admin/fuels",
     component: <Fuels />,
     roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: true,
+    isPublic: false,
+  },
+  {
+    name: "Fueling_person",
+    path: "/admin/fuel/:id",
+    component: <FuelingPerson />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
   },
   {
     name: "Maintenance people",
-    path: "/maintenance",
+    path: "/admin/maintenance",
     component: <Maintenance />,
     roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: true,
+    isPublic: false,
+  },
+  {
+    name: "Maintenance person",
+    path: "/admin/maintenance/:id",
+    component: <MaintenancePerson />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
   },
   {
     name: "Tasks",
-    path: "/tasks",
+    path: "/admin/tasks",
     component: <Tasks />,
     roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: true,
+    isPublic: false,
+  },
+  {
+    name: "UnassignedTasks",
+    path: "/driver/tasks",
+    component: <UnTasks />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
+  },
+  {
+    name: "Tasks",
+    path: "/driver/me",
+    component: <DriverProfile />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
+  },
+  {
+    name: "MaintenanceTasks",
+    path: "/maintenance/tasks",
+    component: <CreateMaintenance />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
+  },
+  {
+    name: "MaintenanceInfo",
+    path: "/maintenance/me",
+    component: <MaintenanceProfile />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
   },
   {
     name: "Vehicles",
-    path: "/vehicles",
+    path: "/admin/vehicles",
     component: <Vehicles />,
     roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: true,
-  },
-  {
-    name: "Caregivers",
-    path: "/member/caregivers",
-    component: <Caregivers />,
-    roles: [Role.CLIENT, Role.ADMIN],
     isPublic: false,
   },
-  {
-    name: "Organizations",
-    path: "/member/jobs",
-    component: <Jobs />,
-    roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: false,
-  },
-  {
-    name: "Employees",
-    path: "/member/appointments",
-    component: <Appointments />,
-    roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: false,
-  },
-  {
-    name: "Jobs",
-    path: "/caregiver/jobs",
-    component: <JobList />,
-    roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: false,
-  },
-  {
-    name: "Applications",
-    path: "/caregiver/applications",
-    component: <ApplicationList />,
-    roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: false,
-  },
-  {
-    name: "Appointments",
-    path: "/caregiver/appointments",
-    component: <AppointmentList />,
-    roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: false,
-  },
-  {
-    name: "JobApplicants",
-    path: "/job-applicants/:id",
-    component: <JobApplicants />,
-    roles: [Role.CLIENT, Role.ADMIN],
-    isPublic: false,
-  },
-  // {
-  //   name: "Registration",
-  //   path: "/registration",
-  //   component: <Registration />,
-  //   roles: [Role.CLIENT, Role.ADMIN],
-  //   isPublic: true,
-  // },
 ];

@@ -1,3 +1,5 @@
+// Import necessary components
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,33 +12,99 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DriverProfileRega } from "../Drivers/types/types";
+import { VehicleRega } from "../types/types";
+import $api from "@/http";
+import { format, parse } from "date-fns";
 
-interface ModalProps {
+// Vehicle Modal Component
+interface ModalVehicleProps {
   content: string;
-  profileData: DriverProfileRega;
-  setProfileData: React.Dispatch<React.SetStateAction<DriverProfileRega>>;
+  vehicleData: VehicleRega;
+  setVehicleData: React.Dispatch<React.SetStateAction<VehicleRega>>;
 }
-export function Modal({ content, profileData, setProfileData }: ModalProps) {
+
+export function ModalVehicle({
+  content,
+  vehicleData,
+  setVehicleData,
+}: ModalVehicleProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    if (name.startsWith("user.")) {
-      setProfileData((prev) => ({
-        ...prev,
-        user: {
-          ...prev.user,
-          [name.substring(5)]: value,
-        },
-      }));
-    } else if (name.startsWith("driver.")) {
-      setProfileData((prev) => ({
-        ...prev,
-        driver: {
-          ...prev.driver,
-          [name.substring(7)]: value,
-        },
-      }));
+    let updatedValue: string | number;
+    if (
+      [
+        "Year",
+        "SeatingCapacity",
+        "TotalDistanceCovered",
+        "FuelCapacity",
+        "FuelConsumed",
+      ].includes(name)
+    ) {
+      updatedValue = parseFloat(value);
+    } else {
+      updatedValue = value;
     }
+
+    setVehicleData((prev) => ({
+      ...prev,
+      [name]: updatedValue,
+    }));
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    // Prepare the data for submission
+    const submitData = {
+      ...vehicleData,
+      Year:
+        typeof vehicleData.Year === "string"
+          ? parseInt(vehicleData.Year)
+          : vehicleData.Year,
+      SeatingCapacity:
+        typeof vehicleData.SeatingCapacity === "string"
+          ? parseInt(vehicleData.SeatingCapacity)
+          : vehicleData.SeatingCapacity,
+      TotalDistanceCovered:
+        typeof vehicleData.TotalDistanceCovered === "string"
+          ? parseFloat(vehicleData.TotalDistanceCovered)
+          : vehicleData.TotalDistanceCovered,
+      FuelCapacity:
+        typeof vehicleData.FuelCapacity === "string"
+          ? parseFloat(vehicleData.FuelCapacity)
+          : vehicleData.FuelCapacity,
+      FuelConsumed:
+        typeof vehicleData.FuelConsumed === "string"
+          ? parseFloat(vehicleData.FuelConsumed)
+          : vehicleData.FuelConsumed,
+      LastMaintenanceCheck: vehicleData.LastMaintenanceCheck
+        ? format(
+            parse(
+              vehicleData.LastMaintenanceCheck,
+              "yyyy-MM-dd'T'HH:mm",
+              new Date()
+            ),
+            "yyyy-MM-dd'T'HH:mm:ss'Z'"
+          )
+        : "",
+    };
+
+    try {
+      const response = await $api.post("/vehicle/add", submitData);
+      console.log(response);
+      setTimeout(() => {
+        setIsLoading(false);
+        window.location.reload();
+      }, 2000);
+      // Rest of your submission logic...
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error submitting data:", error);
+    }
+
+    // Reset loading state and possibly handle the response
   };
   return (
     <Dialog>
@@ -46,81 +114,76 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{content}</DialogTitle>
-          <DialogDescription>
-            Create user and driver details below.
-          </DialogDescription>
+          <DialogDescription>Enter vehicle details below.</DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
+            {/* Vehicle fields */}
             <Field
-              name="user.email"
-              label="Email"
-              value={profileData.user.email}
+              name="Model"
+              label="Model"
+              value={vehicleData.Model}
               onChange={handleInputChange}
             />
             <Field
-              name="user.password"
-              label="Password"
-              type="password"
-              value={profileData.user.password}
-              onChange={handleInputChange}
-            />
-
-            <Field
-              name="driver.government"
-              label="Government ID"
-              value={profileData.driver.government}
+              name="Year"
+              label="Year"
+              type="number"
+              value={vehicleData.Year}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.name"
-              label="Name"
-              value={profileData.driver.name}
+              name="LicensePlate"
+              label="License Plate"
+              value={vehicleData.LicensePlate}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.surname"
-              label="Surname"
-              value={profileData.driver.surname}
+              name="SeatingCapacity"
+              label="Seating Capacity"
+              type="number"
+              value={vehicleData.SeatingCapacity}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.middleName"
-              label="Middle Name"
-              value={profileData.driver.middleName}
+              name="LastMaintenanceCheck"
+              label="Last Maintenance Check"
+              type="datetime-local"
+              value={vehicleData.LastMaintenanceCheck}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.address"
-              label="Address"
-              value={profileData.driver.address}
+              name="TotalDistanceCovered"
+              label="Total Distance Covered"
+              type="number"
+              value={vehicleData.TotalDistanceCovered}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.phone"
-              label="Phone"
-              value={profileData.driver.phone}
+              name="FuelCapacity"
+              label="Fuel Capacity"
+              type="number"
+              value={vehicleData.FuelCapacity}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.email"
-              label="Email"
-              value={profileData.driver.email}
+              name="FuelConsumed"
+              label="Fuel Consumed"
+              type="number"
+              value={vehicleData.FuelConsumed}
               onChange={handleInputChange}
             />
-            <Field
-              name="driver.drivingLicenseCode"
-              label="Driving License Code"
-              value={profileData.driver.drivingLicenseCode}
+            {/* <Field
+              name="Photo"
+              label="Photo URL"
+              value={vehicleData.Photo}
               onChange={handleInputChange}
-            />
+            /> */}
           </div>
           <DialogFooter>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -131,7 +194,7 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
 const Field: React.FC<{
   name: string;
   label: string;
-  value: string;
+  value: string | number;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   type?: string;
 }> = ({ name, label, value, onChange, type = "text" }) => (

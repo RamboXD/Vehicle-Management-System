@@ -1,9 +1,5 @@
 import * as React from "react";
-import {
-  CaretSortIcon,
-  ChevronDownIcon,
-  DotsHorizontalIcon,
-} from "@radix-ui/react-icons";
+import { CaretSortIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -22,9 +18,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -36,28 +29,72 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Modal } from "@/pages/Admin";
-import { Driver, DriverProfileRega } from "@/pages/Admin/types/types";
+import { ModalVehicle } from "@/pages/Admin/components/modalVehicle";
+import { VehicleRega } from "@/pages/Admin/types/types";
 import { ProgressIndicator } from "@/pages/Admin/components/progressPage";
 import $api from "@/http";
-import { useNavigate } from "react-router-dom";
+import { ComboboxAssign } from "@/pages/Admin/components/comoboxAssign";
+import { jsPDF } from "jspdf";
 
-export function DriverTable() {
-  const [data, setData] = React.useState<Driver[]>([]);
+export type Vehicle = {
+  VehicleID: string;
+  Model: string;
+  Year: number;
+  LicensePlate: string;
+  SeatingCapacity: number;
+  AssignedDriverID: string | null;
+  LastMaintenanceCheck: string;
+  TotalDistanceCovered: number;
+  FuelCapacity: number;
+  FuelConsumed: number;
+  Photo: string;
+  Status: "Active" | "Inactive";
+};
+
+export function CreateMaintenanceTable() {
+  const [data, setData] = React.useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [progress, setProgress] = React.useState(0);
+  const [profileData, setProfileData] = React.useState<VehicleRega>({
+    Model: "",
+    Year: new Date().getFullYear(), // current year as default
+    LicensePlate: "",
+    SeatingCapacity: 0,
+    LastMaintenanceCheck: new Date().toISOString().split("T")[0], // current date in YYYY-MM-DD format
+    TotalDistanceCovered: 0.0,
+    FuelCapacity: 0.0,
+    FuelConsumed: 0.0,
+    Photo: "", // Placeholder URL
+    Status: "Inactive", // Default status
+  });
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] =
+    React.useState(false);
+  const [selectedVehicle, setSelectedVehicle] = React.useState<any>(null);
+
+  const openMaintenanceModal = (vehicle: any) => {
+    setSelectedVehicle(vehicle);
+    setIsMaintenanceModalOpen(true);
+  };
+
+  const closeMaintenanceModal = () => {
+    setIsMaintenanceModalOpen(false);
+  };
+
+  const handleMaintenanceSubmit = (maintenanceData: any) => {
+    // API call to /maintenance/do with maintenanceData
+    closeMaintenanceModal();
+  };
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const navigate = useNavigate();
+  const [driversWithoutVehicle, setDriversWithoutVehicle] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const columns: ColumnDef<Driver>[] = [
+  const columns: ColumnDef<Vehicle>[] = [
     {
-      // Assuming you want to create a column that shows vehicle status based on the HasVehicle boolean
-      id: "vehicleStatus", // Use a unique ID for this column
+      accessorKey: "Status",
       header: ({ column }) => {
         return (
           <Button
@@ -69,106 +106,133 @@ export function DriverTable() {
           </Button>
         );
       },
-      cell: ({ row }) => {
-        const hasVehicle = row.original.HasVehicle; // Directly access HasVehicle from the row's original data
-        return (
-          <div className="ml-4">
-            {hasVehicle ? "Has Vehicle" : "No Vehicle"}
-          </div>
-        );
-      },
+      cell: ({ row }) => <div className="ml-4">{row.getValue("Status")}</div>,
     },
     {
-      id: "fullName",
-      header: "Full Name",
-      accessorFn: (row) => `${row.Name} ${row.Surname}`,
-      cell: ({ getValue }) => {
-        const fullName = getValue() as string; // Cast the value to string
-        return <div className="capitalize">{fullName}</div>;
-      },
+      accessorKey: "Model",
+      header: "Model",
+      cell: ({ row }) => <div>{row.getValue("Model")}</div>,
     },
     {
-      accessorKey: "Email",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Email
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      accessorKey: "Year",
+      header: "Year",
+      cell: ({ row }) => <div>{row.getValue("Year")}</div>,
+    },
+    {
+      accessorKey: "LicensePlate",
+      header: "License Plate",
+      cell: ({ row }) => <div>{row.getValue("LicensePlate")}</div>,
+    },
+    {
+      accessorKey: "SeatingCapacity",
+      header: "Seating Capacity",
+      cell: ({ row }) => <div>{row.getValue("SeatingCapacity")}</div>,
+    },
+    {
+      id: "createMaintenance",
+      header: "Maintenance",
       cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("Email")}</div>
+        <Button onClick={() => openMaintenanceModal(row.original)}>
+          Create Maintenance Task
+        </Button>
       ),
     },
-    {
-      accessorKey: "DrivingLicenseCode",
-      header: "License Code",
-      cell: ({ row }) => <div>{row.getValue("DrivingLicenseCode")}</div>,
-    },
-    {
-      accessorKey: "Phone",
-      header: "Phone",
-      cell: ({ row }) => <div>{row.getValue("Phone")}</div>,
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const driver = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(driver.DriverID)}
-              >
-                Copy Driver ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem>
-                <Button
-                  onClick={() => {
-                    navigate(`/admin/driver/${driver.DriverID}`);
-                  }}
-                >
-                  View Driver Details
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
   ];
-  const [profileData, setProfileData] = React.useState<DriverProfileRega>({
-    user: {
-      email: "",
-      password: "",
-    },
-    driver: {
-      government: "",
-      name: "",
-      surname: "",
-      middleName: "",
-      address: "",
-      phone: "",
-      email: "",
-      drivingLicenseCode: "",
-    },
-  });
-  // console.log(profileData);
+  type MaintenanceModalProps = {
+    isOpen: boolean;
+    onClose: () => void; // defining onClose as a function type
+    onSubmit: (maintenanceData: MaintenanceData) => void;
+    vehicleId: string;
+  };
+
+  type MaintenanceData = {
+    VehicleID: string;
+    ServiceDate: string;
+    ServiceType: string;
+    Description: string;
+    Cost: number;
+    PartsReplaced: string;
+    ServiceReportImage: string;
+    OdometerReading: number;
+  };
+
+  function MaintenanceModal({
+    isOpen,
+    onClose,
+    onSubmit,
+    vehicleId,
+  }: MaintenanceModalProps) {
+    const [serviceDate, setServiceDate] = React.useState("");
+    const [serviceType, setServiceType] = React.useState("");
+    const [description, setDescription] = React.useState("");
+    const [cost, setCost] = React.useState("");
+    const [partsReplaced, setPartsReplaced] = React.useState("");
+    const [serviceReportImage, setServiceReportImage] = React.useState("");
+    const [odometerReading, setOdometerReading] = React.useState("");
+
+    const handleSubmit = () => {
+      const maintenanceData: MaintenanceData = {
+        VehicleID: vehicleId,
+        ServiceDate: serviceDate,
+        ServiceType: serviceType,
+        Description: description,
+        Cost: parseFloat(cost),
+        PartsReplaced: partsReplaced,
+        ServiceReportImage: serviceReportImage,
+        OdometerReading: parseInt(odometerReading, 10),
+      };
+      onSubmit(maintenanceData);
+    };
+    return (
+      isOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 className="text-xl mb-4 font-semibold text-gray-700">
+              Create Maintenance Task
+            </h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+            >
+              <div className="mb-4">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="serviceDate"
+                >
+                  Service Date
+                </label>
+                <input
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  id="serviceDate"
+                  type="date"
+                  value={serviceDate}
+                  onChange={(e) => setServiceDate(e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Submit
+                </Button>
+                <Button
+                  onClick={onClose}
+                  className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+                >
+                  Close
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )
+    );
+  }
+
   const table = useReactTable({
     data,
     columns,
@@ -191,7 +255,6 @@ export function DriverTable() {
   const onGlobalFilterChange = (value: string) => {
     table.setGlobalFilter(value);
   };
-
   React.useEffect(() => {
     let isDataFetched = false;
     setIsLoading(true);
@@ -199,9 +262,12 @@ export function DriverTable() {
     // Function to fetch data
     const fetchData = async () => {
       try {
-        const response = await $api.get("/driver/drivers/");
+        const response = await $api.get("/vehicle/vehicles");
         console.log(response);
-        setData(response.data.drivers); // Assuming the response data is the array of drivers
+        setData(response.data.vehicles); // Assuming the response data is the array of drivers
+        const responseDrivers = await $api.get("/driver/drivers/no_vehicle");
+        console.log(responseDrivers);
+        setDriversWithoutVehicle(responseDrivers.data.drivers);
         isDataFetched = true;
         if (progress >= 100) {
           setIsLoading(false);
@@ -252,12 +318,11 @@ export function DriverTable() {
           onChange={(event) => onGlobalFilterChange(event.target.value)}
           className="max-w-sm mr-5"
         />
-        <Modal
-          content={"Create Driver"}
-          profileData={profileData}
-          setProfileData={setProfileData}
+        <ModalVehicle
+          content={"Create Vehicle"}
+          vehicleData={profileData}
+          setVehicleData={setProfileData}
         />
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -355,6 +420,12 @@ export function DriverTable() {
           </Button>
         </div>
       </div>
+      <MaintenanceModal
+        isOpen={isMaintenanceModalOpen}
+        onClose={closeMaintenanceModal}
+        onSubmit={handleMaintenanceSubmit}
+        vehicleId={selectedVehicle?.VehicleID}
+      />
     </div>
   );
 }

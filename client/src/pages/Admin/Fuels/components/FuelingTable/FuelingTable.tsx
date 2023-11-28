@@ -33,50 +33,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ModalFueling } from "@/pages/Admin/components/modalFueling";
-import { FuelingProfileRega } from "@/pages/Admin/Drivers/types/types";
-
-const data: FuelingPerson[] = [
-  {
-    FuelingPersonID: "25e58ded-58d2-48df-8118-8250072d268a",
-    UserID: "f7743878-d1a0-429f-a829-2a6d67e4a009",
-    Certification: "Certified Fuel Handler",
-    Name: "John",
-    Surname: "Doe",
-    MiddleName: "L",
-  },
-  {
-    FuelingPersonID: "35g69fgh-68f2-49gf-9128-8250072d268b",
-    UserID: "g8843988-e2b0-529f-b839-3b6d67e5b2a1",
-    Certification: "Expert Fuel Technician",
-    Name: "Alice",
-    Surname: "Johnson",
-    MiddleName: "M",
-  },
-  {
-    FuelingPersonID: "45h70ghi-79g3-50hg-0239-9350183e378c",
-    UserID: "h9954099-f3c1-630g-c840-4c7d78f6c3b2",
-    Certification: "Fuel Safety Specialist",
-    Name: "Bob",
-    Surname: "Williams",
-    MiddleName: "N",
-  },
-  {
-    FuelingPersonID: "56i81ijk-80h4-71ij-1340-0461294f489d",
-    UserID: "i0065010-g4d2-731h-d951-5d8e89g7d4c3",
-    Certification: "Gas Handling Expert",
-    Name: "Carol",
-    Surname: "Brown",
-    MiddleName: "O",
-  },
-  {
-    FuelingPersonID: "67j92jkl-91i5-82jk-2451-1572305g59ae",
-    UserID: "j1176121-h5e3-842i-e062-6e9f9ah8e5d4",
-    Certification: "Petroleum Transfer Engineer",
-    Name: "David",
-    Surname: "Miller",
-    MiddleName: "P",
-  },
-];
+import { FuelingProfileRega } from "@/pages/Admin/types/types";
+import { ProgressIndicator } from "@/pages/Admin/components/progressPage";
+import $api from "@/http";
+import { useNavigate } from "react-router-dom";
 
 export type FuelingPerson = {
   FuelingPersonID: string;
@@ -87,53 +47,12 @@ export type FuelingPerson = {
   MiddleName: string;
 };
 
-export const columns: ColumnDef<FuelingPerson>[] = [
-  {
-    id: "fullName",
-    header: "Full Name",
-    accessorFn: (row) => `${row.Name} ${row.Surname}`,
-    cell: ({ getValue }) => (
-      <div className="capitalize">{getValue() as string}</div>
-    ),
-  },
-  {
-    accessorKey: "Certification",
-    header: "Certification",
-    cell: ({ row }) => <div>{row.getValue("Certification")}</div>,
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const fuelingPerson = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(fuelingPerson.FuelingPersonID)
-              }
-            >
-              Copy Fueling Person ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Fueling Person Details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
-
 export function FuelingTable() {
+  const [data, setData] = React.useState<FuelingPerson[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [progress, setProgress] = React.useState(0);
+  const navigate = useNavigate();
+
   const [profileData, setProfileData] = React.useState<FuelingProfileRega>({
     user: {
       email: "",
@@ -146,6 +65,60 @@ export function FuelingTable() {
       middleName: "",
     },
   });
+  const columns: ColumnDef<FuelingPerson>[] = [
+    {
+      id: "fullName",
+      header: "Full Name",
+      accessorFn: (row) => `${row.Name} ${row.Surname}`,
+      cell: ({ getValue }) => (
+        <div className="capitalize">{getValue() as string}</div>
+      ),
+    },
+    {
+      accessorKey: "Certification",
+      header: "Certification",
+      cell: ({ row }) => <div>{row.getValue("Certification")}</div>,
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const fuelingPerson = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() =>
+                  navigator.clipboard.writeText(fuelingPerson.FuelingPersonID)
+                }
+              >
+                Copy Fueling Person ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                {" "}
+                <Button
+                  onClick={() => {
+                    navigate(`/admin/fuel/${fuelingPerson.FuelingPersonID}`);
+                  }}
+                >
+                  View Fueling person Details
+                </Button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -176,6 +149,57 @@ export function FuelingTable() {
   const onGlobalFilterChange = (value: string) => {
     table.setGlobalFilter(value);
   };
+  React.useEffect(() => {
+    let isDataFetched = false;
+    setIsLoading(true);
+
+    // Function to fetch data
+    const fetchData = async () => {
+      try {
+        const response = await $api.get("/fueling_person/fueling_persons/");
+        console.log(response);
+
+        setData(response.data.fuelingPersons); // Assuming the response data is the array of drivers
+        isDataFetched = true;
+        if (progress >= 100) {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        isDataFetched = true;
+        if (progress >= 100) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    // Function to increment progress
+    const incrementProgress = () => {
+      setProgress((prevProgress) => {
+        if (prevProgress >= 100) {
+          clearInterval(timer);
+          if (isDataFetched) {
+            setIsLoading(false);
+          }
+          return 100;
+        }
+        return prevProgress + 10; // Increment by 10 every 200ms
+      });
+    };
+
+    let timer = setInterval(incrementProgress, 200); // Update progress every 200ms
+
+    return () => clearInterval(timer); // Cleanup interval on component unmount
+  }, []);
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ProgressIndicator value={progress} />
+      </div>
+    );
+  }
   return (
     <div className="w-full">
       <div className="flex items-center py-4">

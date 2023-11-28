@@ -1,9 +1,5 @@
 import * as React from "react";
-import {
-  CaretSortIcon,
-  ChevronDownIcon,
-  DotsHorizontalIcon,
-} from "@radix-ui/react-icons";
+import { CaretSortIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -22,9 +18,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -36,139 +29,114 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Modal } from "@/pages/Admin";
-import { Driver, DriverProfileRega } from "@/pages/Admin/types/types";
+import { ModalTask } from "@/pages/Admin/components/modalTask";
+import { TaskRega } from "@/pages/Admin/types/types";
 import { ProgressIndicator } from "@/pages/Admin/components/progressPage";
 import $api from "@/http";
-import { useNavigate } from "react-router-dom";
 
-export function DriverTable() {
-  const [data, setData] = React.useState<Driver[]>([]);
+export type Task = {
+  TaskID: string;
+  AssignedDriverID: string | null;
+  Title: string;
+  Description: string;
+  Status: "not_assigned" | "in_progress" | "finished";
+  WhereFrom: string;
+  WhereTo: string;
+  Distance: number;
+};
+
+export function UnTasksTable() {
+  const [currentTask, setCurrentTask] = React.useState<any>(null);
+  const [data, setData] = React.useState<Task[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [progress, setProgress] = React.useState(0);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const navigate = useNavigate();
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [profileData, setProfileData] = React.useState<TaskRega>({
+    title: "",
+    description: "",
+    whereFrom: "",
+    whereTo: "",
+    distance: 0,
+  });
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const columns: ColumnDef<Driver>[] = [
+
+  const columns: ColumnDef<Task>[] = [
     {
-      // Assuming you want to create a column that shows vehicle status based on the HasVehicle boolean
-      id: "vehicleStatus", // Use a unique ID for this column
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Status
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        const hasVehicle = row.original.HasVehicle; // Directly access HasVehicle from the row's original data
-        return (
-          <div className="ml-4">
-            {hasVehicle ? "Has Vehicle" : "No Vehicle"}
-          </div>
-        );
-      },
-    },
-    {
-      id: "fullName",
-      header: "Full Name",
-      accessorFn: (row) => `${row.Name} ${row.Surname}`,
-      cell: ({ getValue }) => {
-        const fullName = getValue() as string; // Cast the value to string
-        return <div className="capitalize">{fullName}</div>;
-      },
-    },
-    {
-      accessorKey: "Email",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Email
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("Email")}</div>
+      accessorKey: "Status",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
       ),
-    },
-    {
-      accessorKey: "DrivingLicenseCode",
-      header: "License Code",
-      cell: ({ row }) => <div>{row.getValue("DrivingLicenseCode")}</div>,
-    },
-    {
-      accessorKey: "Phone",
-      header: "Phone",
-      cell: ({ row }) => <div>{row.getValue("Phone")}</div>,
-    },
-    {
-      id: "actions",
-      enableHiding: false,
       cell: ({ row }) => {
-        const driver = row.original;
+        const statusValue = row.getValue("Status");
+        let displayValue = "";
 
+        switch (statusValue) {
+          case "not_assigned":
+            displayValue = "Not Assigned";
+            break;
+          case "in_progress":
+            displayValue = "In Progress";
+            break;
+          case "finished":
+            displayValue = "Finished";
+            break;
+        }
+
+        return <div className="m-4">{displayValue}</div>;
+      },
+    },
+    {
+      accessorKey: "Title",
+      header: "Title",
+      cell: ({ row }) => <div>{row.getValue("Title")}</div>,
+    },
+    {
+      accessorKey: "Description",
+      header: "Description",
+      cell: ({ row }) => <div>{row.getValue("Description")}</div>,
+    },
+    {
+      id: "assign",
+      header: "Assign",
+      cell: ({ row }) => {
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(driver.DriverID)}
-              >
-                Copy Driver ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem>
-                <Button
-                  onClick={() => {
-                    navigate(`/admin/driver/${driver.DriverID}`);
-                  }}
-                >
-                  View Driver Details
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            onClick={() => assignTask(row.original.TaskID)}
+            disabled={!!currentTask}
+          >
+            Assign to Me
+          </Button>
         );
       },
     },
   ];
-  const [profileData, setProfileData] = React.useState<DriverProfileRega>({
-    user: {
-      email: "",
-      password: "",
-    },
-    driver: {
-      government: "",
-      name: "",
-      surname: "",
-      middleName: "",
-      address: "",
-      phone: "",
-      email: "",
-      drivingLicenseCode: "",
-    },
-  });
-  // console.log(profileData);
+  const assignTask = async (taskId: string) => {
+    if (currentTask) {
+      console.log("A task is already assigned.");
+      return;
+    }
+
+    try {
+      const response = await $api.post(`/task/tasks/assign/${taskId}`);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      console.log(response);
+    } catch (error) {
+      console.error("Error assigning task:", error);
+    }
+  };
   const table = useReactTable({
     data,
     columns,
@@ -191,6 +159,28 @@ export function DriverTable() {
   const onGlobalFilterChange = (value: string) => {
     table.setGlobalFilter(value);
   };
+  // React.useEffect(() => {
+  //   const fetchData = async () => {
+  //     setIsLoading(true);
+  //     setProgress(30); // Initial progress
+
+  //     try {
+  //       // const response = await axios.get(
+  //       //   "https://your-api-endpoint.com/drivers"
+  //       // );
+  //       // setData(response.data); // Assuming the response data is the array of drivers
+  //       setData(dataX);
+  //       setProgress(100); // Complete progress
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setIsLoading(false); // Stop loading even if there is an error
+  //       setProgress(100); // Complete progress even in case of an error
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
 
   React.useEffect(() => {
     let isDataFetched = false;
@@ -199,9 +189,18 @@ export function DriverTable() {
     // Function to fetch data
     const fetchData = async () => {
       try {
-        const response = await $api.get("/driver/drivers/");
+        const response = await $api.get("/task/tasks/unassigned");
         console.log(response);
-        setData(response.data.drivers); // Assuming the response data is the array of drivers
+        setData(response.data.tasks); // Assuming the response data is the array of drivers
+        const responseTask = await $api.get("/task/tasks/my-active");
+        console.log(responseTask);
+        if (responseTask.data && responseTask.data.status === "success") {
+          setCurrentTask(
+            responseTask.data.message === "No Active Task"
+              ? null
+              : responseTask.data.task[0]
+          );
+        }
         isDataFetched = true;
         if (progress >= 100) {
           setIsLoading(false);
@@ -235,7 +234,6 @@ export function DriverTable() {
 
     return () => clearInterval(timer); // Cleanup interval on component unmount
   }, []);
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -243,8 +241,49 @@ export function DriverTable() {
       </div>
     );
   }
+  const finishTask = async (taskId: string) => {
+    try {
+      const response = await $api.post(`/task/tasks/finish/${taskId}`);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      console.log(response);
+    } catch (error) {
+      console.error("Error finishing task:", error);
+    }
+  };
+  console.log(currentTask);
   return (
     <div className="w-full">
+      <div className="mb-4 p-4 bg-blue-500 rounded shadow-lg">
+        <h3 className="text-lg font-semibold text-white">Current Task:</h3>
+        {currentTask ? (
+          <div className="mt-4 bg-blue-600 p-3 rounded">
+            <p className="text-white text-sm">
+              Title: <span className="font-bold">{currentTask.Title}</span>
+            </p>
+            <p className="text-white text-sm mt-2">
+              Description:{" "}
+              <span className="font-bold">{currentTask.Description}</span>
+            </p>
+            <div className="mt-4">
+              <Button
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => finishTask(currentTask.TaskID)}
+              >
+                Finish
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 bg-blue-600 p-3 rounded">
+            <p className="text-white text-sm">
+              No task in process at the current moment.
+            </p>
+          </div>
+        )}
+      </div>
+
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter..."
@@ -252,12 +291,11 @@ export function DriverTable() {
           onChange={(event) => onGlobalFilterChange(event.target.value)}
           className="max-w-sm mr-5"
         />
-        <Modal
-          content={"Create Driver"}
-          profileData={profileData}
-          setProfileData={setProfileData}
+        <ModalTask
+          content={"Create Task"}
+          taskData={profileData}
+          setTaskData={setProfileData}
         />
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

@@ -36,64 +36,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const data: Task[] = [
-  {
-    TaskID: "50e85d40-2a3a-4245-a824-44296eda8ba7",
-    AssignedDriverID: null,
-    Title: "Go from Mega Silkway to Baiterek",
-    Description:
-      "Arrive at 11:00am to Mega Silkway and get to Baiterek until 12:00pm",
-    Status: "not_assigned",
-    WhereFrom: "Mega Silkway",
-    WhereTo: "Baiterek",
-    Distance: 5.9,
-  },
-  {
-    TaskID: "60f96e51-3b4b-5356-b925-56397fea9c8",
-    AssignedDriverID: "7fb90dc4-4cd2-4001-b5e2-41c9f78aee6c",
-    Title: "Deliver documents to City Hall",
-    Description:
-      "Pick up documents from the office and deliver them to the City Hall by 3:00pm",
-    Status: "in_progress",
-    WhereFrom: "Office",
-    WhereTo: "City Hall",
-    Distance: 3.2,
-  },
-  {
-    TaskID: "71g07f62-4c5c-6467-ca36-674a8feba9d",
-    AssignedDriverID: "8gd91ed5-5ed3-5002-c6f3-52d9f89bfe7d",
-    Title: "Airport pickup",
-    Description:
-      "Pick up client from the airport and drop them at the downtown hotel",
-    Status: "finished",
-    WhereFrom: "Airport",
-    WhereTo: "Downtown Hotel",
-    Distance: 12.5,
-  },
-  {
-    TaskID: "82h18g73-5d6d-7578-db47-785b9g0cb0e",
-    AssignedDriverID: "9he92fe6-6fe4-6003-d7g4-63eaf9acf8ee",
-    Title: "Equipment transport to new office",
-    Description:
-      "Transport all marked equipment from the old office to the new location",
-    Status: "not_assigned",
-    WhereFrom: "Old Office",
-    WhereTo: "New Office",
-    Distance: 7.8,
-  },
-  {
-    TaskID: "93i29h84-6e7e-8689-ec58-896ca1d1c1f",
-    AssignedDriverID: null,
-    Title: "Urgent parcel delivery",
-    Description:
-      "Deliver the urgent parcel to the specified address without delay",
-    Status: "in_progress",
-    WhereFrom: "Warehouse",
-    WhereTo: "Specified Address",
-    Distance: 4.4,
-  },
-];
+import { ModalTask } from "@/pages/Admin/components/modalTask";
+import { TaskRega } from "@/pages/Admin/types/types";
+import { ProgressIndicator } from "@/pages/Admin/components/progressPage";
+import $api from "@/http";
 
 export type Task = {
   TaskID: string;
@@ -180,10 +126,20 @@ export const columns: ColumnDef<Task>[] = [
 ];
 
 export function TasksTable() {
+  const [data, setData] = React.useState<Task[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [progress, setProgress] = React.useState(0);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [profileData, setProfileData] = React.useState<TaskRega>({
+    title: "",
+    description: "",
+    whereFrom: "",
+    whereTo: "",
+    distance: 0,
+  });
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
@@ -210,6 +166,79 @@ export function TasksTable() {
   const onGlobalFilterChange = (value: string) => {
     table.setGlobalFilter(value);
   };
+  // React.useEffect(() => {
+  //   const fetchData = async () => {
+  //     setIsLoading(true);
+  //     setProgress(30); // Initial progress
+
+  //     try {
+  //       // const response = await axios.get(
+  //       //   "https://your-api-endpoint.com/drivers"
+  //       // );
+  //       // setData(response.data); // Assuming the response data is the array of drivers
+  //       setData(dataX);
+  //       setProgress(100); // Complete progress
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setIsLoading(false); // Stop loading even if there is an error
+  //       setProgress(100); // Complete progress even in case of an error
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+  React.useEffect(() => {
+    let isDataFetched = false;
+    setIsLoading(true);
+
+    // Function to fetch data
+    const fetchData = async () => {
+      try {
+        const response = await $api.get("/task/tasks/");
+        console.log(response);
+        setData(response.data.tasks); // Assuming the response data is the array of drivers
+        isDataFetched = true;
+        if (progress >= 100) {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        isDataFetched = true;
+        if (progress >= 100) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    // Function to increment progress
+    const incrementProgress = () => {
+      setProgress((prevProgress) => {
+        if (prevProgress >= 100) {
+          clearInterval(timer);
+          if (isDataFetched) {
+            setIsLoading(false);
+          }
+          return 100;
+        }
+        return prevProgress + 10; // Increment by 10 every 200ms
+      });
+    };
+
+    let timer = setInterval(incrementProgress, 200); // Update progress every 200ms
+
+    return () => clearInterval(timer); // Cleanup interval on component unmount
+  }, []);
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ProgressIndicator value={progress} />
+      </div>
+    );
+  }
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -217,7 +246,12 @@ export function TasksTable() {
           placeholder="Filter..."
           value={globalFilterValue}
           onChange={(event) => onGlobalFilterChange(event.target.value)}
-          className="max-w-sm"
+          className="max-w-sm mr-5"
+        />
+        <ModalTask
+          content={"Create Task"}
+          taskData={profileData}
+          setTaskData={setProfileData}
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

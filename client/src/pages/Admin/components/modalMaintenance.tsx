@@ -1,3 +1,5 @@
+// Import necessary components and types
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,16 +10,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DriverProfileRega } from "../Drivers/types/types";
+import { MaintenanceProfileRega } from "../types/types";
+import $api from "@/http";
 
-interface ModalProps {
+// Maintenance Modal Component
+interface ModalMaintenanceProps {
   content: string;
-  profileData: DriverProfileRega;
-  setProfileData: React.Dispatch<React.SetStateAction<DriverProfileRega>>;
+  profileData: MaintenanceProfileRega;
+  setProfileData: React.Dispatch<React.SetStateAction<MaintenanceProfileRega>>;
 }
-export function Modal({ content, profileData, setProfileData }: ModalProps) {
+
+export function ModalMaintenance({
+  content,
+  profileData,
+  setProfileData,
+}: ModalMaintenanceProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (name.startsWith("user.")) {
@@ -28,14 +40,34 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
           [name.substring(5)]: value,
         },
       }));
-    } else if (name.startsWith("driver.")) {
+    } else if (name.startsWith("maintenance_person.")) {
       setProfileData((prev) => ({
         ...prev,
-        driver: {
-          ...prev.driver,
-          [name.substring(7)]: value,
+        maintenance_person: {
+          ...prev.maintenance_person,
+          [name.substring(19)]: value,
         },
       }));
+    }
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await $api.post(
+        "/auth/register/maintenance",
+        profileData
+      );
+      console.log(response);
+
+      setTimeout(() => {
+        setIsLoading(false);
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error submitting data:", error);
     }
   };
   return (
@@ -47,14 +79,10 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
         <DialogHeader>
           <DialogTitle>{content}</DialogTitle>
           <DialogDescription>
-            Create user and driver details below.
+            Create user and maintenance person details below.
           </DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <Field
               name="user.email"
@@ -70,57 +98,42 @@ export function Modal({ content, profileData, setProfileData }: ModalProps) {
               onChange={handleInputChange}
             />
 
+            {/* Maintenance person fields */}
             <Field
-              name="driver.government"
-              label="Government ID"
-              value={profileData.driver.government}
-              onChange={handleInputChange}
-            />
-            <Field
-              name="driver.name"
+              name="maintenance_person.name"
               label="Name"
-              value={profileData.driver.name}
+              value={profileData.maintenance_person.name}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.surname"
+              name="maintenance_person.surname"
               label="Surname"
-              value={profileData.driver.surname}
+              value={profileData.maintenance_person.surname}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.middleName"
+              name="maintenance_person.middleName"
               label="Middle Name"
-              value={profileData.driver.middleName}
+              value={profileData.maintenance_person.middleName}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.address"
-              label="Address"
-              value={profileData.driver.address}
+              name="maintenance_person.qualifications"
+              label="Qualifications"
+              value={profileData.maintenance_person.qualifications}
               onChange={handleInputChange}
             />
             <Field
-              name="driver.phone"
-              label="Phone"
-              value={profileData.driver.phone}
-              onChange={handleInputChange}
-            />
-            <Field
-              name="driver.email"
-              label="Email"
-              value={profileData.driver.email}
-              onChange={handleInputChange}
-            />
-            <Field
-              name="driver.drivingLicenseCode"
-              label="Driving License Code"
-              value={profileData.driver.drivingLicenseCode}
+              name="maintenance_person.experience"
+              label="Experience"
+              value={profileData.maintenance_person.experience}
               onChange={handleInputChange}
             />
           </div>
           <DialogFooter>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,5 +1,6 @@
 // import logo from "@/assets/images/logoo.png";
 import anime from "@/assets/images/anim.gif";
+import { Link } from "react-router-dom";
 
 const Main: React.FC = () => {
   return (
@@ -19,17 +20,16 @@ const Main: React.FC = () => {
             href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           >
             <div className="flex text-lg">
-              <span className="justify-center">View All Templates</span>
+              <span className="justify-center">Do Not Click Please</span>
             </div>
           </a>
-          <a
-            className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent ml-11 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md md:mt-0 focus:shadow-outline"
-            href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-          >
-            <div className="flex text-lg">
-              <span className="justify-center">Purchase</span>
-            </div>
-          </a>
+          <Link to="/login">
+            <a className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent ml-11 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md md:mt-0 focus:shadow-outline">
+              <div className="flex text-lg">
+                <span className="justify-center">Login</span>
+              </div>
+            </a>
+          </Link>
         </div>
       </div>
       <div className="container flex flex-col items-center justify-center mx-auto">
