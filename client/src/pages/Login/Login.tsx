@@ -21,6 +21,7 @@ const Login: React.FC = () => {
       if (result.data.role === "driver") navigate("/driver/tasks");
       if (result.data.role === "maintenance_person")
         navigate("/maintenance/tasks");
+      if (result.data.role === "fueling_person") navigate("/fueling/tasks");
     } catch (error) {
       console.log("ERROR");
     }

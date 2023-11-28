@@ -48,7 +48,7 @@ export type Vehicle = {
   Status: "Active" | "Inactive";
 };
 
-export function CreateMaintenanceTable() {
+export function CreateFuelingTable() {
   const [data, setData] = React.useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [progress, setProgress] = React.useState(0);
@@ -64,37 +64,29 @@ export function CreateMaintenanceTable() {
     Photo: "", // Placeholder URL
     Status: "Inactive", // Default status
   });
-  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] =
-    React.useState(false);
   const [selectedVehicle, setSelectedVehicle] = React.useState<any>(null);
+  const [isFuelingModalOpen, setIsFuelingModalOpen] = React.useState(false);
 
-  const openMaintenanceModal = (vehicle: any) => {
-    setSelectedVehicle(vehicle);
-    setIsMaintenanceModalOpen(true);
+  // Function to open the Fueling Modal
+  const openFuelingModal = (vehicleId: string) => {
+    setSelectedVehicle(vehicleId);
+    setIsFuelingModalOpen(true);
   };
 
-  const closeMaintenanceModal = () => {
-    setIsMaintenanceModalOpen(false);
+  // Function to close the Fueling Modal
+  const closeFuelingModal = () => {
+    setIsFuelingModalOpen(false);
   };
 
-  const handleMaintenanceSubmit = async (maintenanceData: any) => {
+  const handleFuelingSubmit = async (fuelingData: any) => {
     try {
-      const response = await $api.post("/maintenance/do", {
-        VehicleID: maintenanceData.VehicleID,
-        ServiceDate: maintenanceData.ServiceDate,
-        ServiceType: maintenanceData.ServiceType,
-        Description: maintenanceData.Description,
-        Cost: maintenanceData.Cost,
-        PartsReplaced: maintenanceData.PartsReplaced,
-        ServiceReportImage: maintenanceData.ServiceReportImage,
-        OdometerReading: maintenanceData.OdometerReading,
-      });
+      const response = await $api.post("/fuel/do", fuelingData);
       console.log(response);
       setTimeout(() => {
         window.location.reload(); // or use other methods to update the UI
       }, 2000);
     } catch (error) {
-      console.error("Error submitting maintenance data:", error);
+      console.error("Error submitting fueling data:", error);
     }
   };
 
@@ -142,204 +134,195 @@ export function CreateMaintenanceTable() {
       cell: ({ row }) => <div>{row.getValue("SeatingCapacity")}</div>,
     },
     {
-      id: "createMaintenance",
-      header: "Maintenance",
+      id: "createFueling",
+      header: "Fueling",
       cell: ({ row }) => (
-        <Button onClick={() => openMaintenanceModal(row.original)}>
-          Create Maintenance Task
+        <Button onClick={() => openFuelingModal(row.original.VehicleID)}>
+          Create Fueling Task
         </Button>
       ),
     },
   ];
-  type MaintenanceModalProps = {
-    isOpen: boolean;
-    onClose: () => void; // defining onClose as a function type
-    onSubmit: (maintenanceData: MaintenanceData) => void;
+  type FuelingData = {
     vehicleId: string;
+    fuelingDate: string;
+    fuelQuantity: number;
+    fuelCost: number;
+    gasStationName: string;
+    fuelType: string;
+    fuelingReceiptImage: string;
   };
 
-  type MaintenanceData = {
-    VehicleID: string;
-    ServiceDate: string;
-    ServiceType: string;
-    Description: string;
-    Cost: number;
-    PartsReplaced: string;
-    ServiceReportImage: string;
-    OdometerReading: number;
+  type FuelingModalProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (fuelingData: FuelingData) => void;
   };
 
-  function MaintenanceModal({
-    isOpen,
-    onClose,
-    onSubmit,
-    vehicleId,
-  }: MaintenanceModalProps) {
-    const [serviceDate, setServiceDate] = React.useState("");
-    const [serviceType, setServiceType] = React.useState("");
-    const [description, setDescription] = React.useState("");
-    const [cost, setCost] = React.useState("");
-    const [partsReplaced, setPartsReplaced] = React.useState("");
-    const [serviceReportImage, setServiceReportImage] = React.useState("");
-    const [odometerReading, setOdometerReading] = React.useState("");
+  function FuelingModal({ isOpen, onClose, onSubmit }: FuelingModalProps) {
+    const [fuelingData, setFuelingData] = React.useState<FuelingData>({
+      vehicleId: selectedVehicle,
+      fuelingDate: "2023-03-15T09:00:00Z",
+      fuelQuantity: 50.0,
+      fuelCost: 100.0,
+      gasStationName: "Station XYZ",
+      fuelType: "Diesel",
+      fuelingReceiptImage: "http://example.com/receipt.jpg",
+    });
 
-    const handleSubmit = () => {
-      const formattedServiceDate = `${serviceDate}T00:00:00Z`; // Append a default time and timezone
-
-      const maintenanceData: MaintenanceData = {
-        VehicleID: vehicleId,
-        ServiceDate: formattedServiceDate,
-        ServiceType: serviceType,
-        Description: description,
-        Cost: parseFloat(cost),
-        PartsReplaced: partsReplaced,
-        ServiceReportImage: serviceReportImage,
-        OdometerReading: parseInt(odometerReading, 10),
-      };
-      onSubmit(maintenanceData);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFuelingData({ ...fuelingData, [e.target.name]: e.target.value });
     };
 
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+
+      // Clone the current state
+      const submissionData = { ...fuelingData };
+
+      // Format the fuelingDate to include seconds and 'Z' for UTC timezone
+      if (
+        submissionData.fuelingDate &&
+        !submissionData.fuelingDate.includes(":00Z")
+      ) {
+        submissionData.fuelingDate = formatDateTimeForSubmission(
+          submissionData.fuelingDate
+        );
+      }
+
+      onSubmit(submissionData);
+    };
+
+    function formatDateTimeForSubmission(dateTimeString: any) {
+      // Append :00 (seconds) to the dateTimeString
+      const formattedDateTime = dateTimeString + ":00Z";
+
+      return formattedDateTime;
+    }
+
+    if (!isOpen) return null;
+
     return (
-      isOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <h3 className="text-xl mb-4 font-semibold text-gray-700">
-              Create Maintenance Task
-            </h3>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit();
-              }}
-            >
-              <div className="mb-4">
-                <label
-                  htmlFor="serviceDate"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Service Date
-                </label>
-                <input
-                  type="date"
-                  id="serviceDate"
-                  value={serviceDate}
-                  onChange={(e) => setServiceDate(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
+      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+        <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-auto">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Fueling Information
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex flex-col">
+              <label
+                htmlFor="fuelingDate"
+                className="mb-2 font-medium text-gray-700"
+              >
+                Fueling Date
+              </label>
+              <input
+                type="datetime-local"
+                name="fuelingDate"
+                value={fuelingData.fuelingDate}
+                onChange={handleChange}
+                className="text-gray-700 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-              <div className="mb-4">
-                <label
-                  htmlFor="serviceType"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Service Type
-                </label>
-                <input
-                  type="text"
-                  id="serviceType"
-                  value={serviceType}
-                  onChange={(e) => setServiceType(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="description"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                ></textarea>
-              </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="fuelQuantity"
+                className="text-gray-700 mb-2 font-medium"
+              >
+                Fuel Quantity (Liters)
+              </label>
+              <input
+                type="number"
+                name="fuelQuantity"
+                value={fuelingData.fuelQuantity.toString()}
+                onChange={handleChange}
+                className="text-gray-700 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-              <div className="mb-4">
-                <label
-                  htmlFor="cost"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Cost
-                </label>
-                <input
-                  type="number"
-                  id="cost"
-                  value={cost}
-                  onChange={(e) => setCost(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="fuelCost"
+                className="text-gray-700 mb-2 font-medium"
+              >
+                Fuel Cost
+              </label>
+              <input
+                type="number"
+                name="fuelCost"
+                value={fuelingData.fuelCost.toString()}
+                onChange={handleChange}
+                className=" text-gray-700 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-              <div className="mb-4">
-                <label
-                  htmlFor="partsReplaced"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Parts Replaced
-                </label>
-                <input
-                  type="text"
-                  id="partsReplaced"
-                  value={partsReplaced}
-                  onChange={(e) => setPartsReplaced(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="gasStationName"
+                className="text-gray-700 mb-2 font-medium "
+              >
+                Gas Station Name
+              </label>
+              <input
+                type="text"
+                name="gasStationName"
+                value={fuelingData.gasStationName}
+                onChange={handleChange}
+                className="text-gray-700 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-              <div className="mb-4">
-                <label
-                  htmlFor="serviceReportImage"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Service Report Image URL
-                </label>
-                <input
-                  type="text"
-                  id="serviceReportImage"
-                  value={serviceReportImage}
-                  onChange={(e) => setServiceReportImage(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="fuelType"
+                className="mb-2 font-medium text-gray-700"
+              >
+                Fuel Type
+              </label>
+              <input
+                type="text"
+                name="fuelType"
+                value={fuelingData.fuelType}
+                onChange={handleChange}
+                className="text-gray-700 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-              <div className="mb-4">
-                <label
-                  htmlFor="odometerReading"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Odometer Reading
-                </label>
-                <input
-                  type="number"
-                  id="odometerReading"
-                  value={odometerReading}
-                  onChange={(e) => setOdometerReading(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="fuelingReceiptImage"
+                className="mb-2 font-medium text-gray-700"
+              >
+                Fueling Receipt Image URL
+              </label>
+              <input
+                type="text"
+                name="fuelingReceiptImage"
+                value={fuelingData.fuelingReceiptImage}
+                onChange={handleChange}
+                className="text-gray-700 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-              <div className="flex items-center justify-between">
-                <Button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                >
-                  Submit
-                </Button>
-                <Button
-                  onClick={onClose}
-                  className="inline-block align-baseline font-bold text-sm  hover:text-blue-800"
-                >
-                  Close
-                </Button>
-              </div>
-            </form>
-          </div>
+            <div className="flex items-center justify-between mt-6">
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Submit
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 focus:outline-none"
+              >
+                Close
+              </button>
+            </div>
+          </form>
         </div>
-      )
+      </div>
     );
   }
 
@@ -527,11 +510,10 @@ export function CreateMaintenanceTable() {
           </Button>
         </div>
       </div>
-      <MaintenanceModal
-        isOpen={isMaintenanceModalOpen}
-        onClose={closeMaintenanceModal}
-        onSubmit={handleMaintenanceSubmit}
-        vehicleId={selectedVehicle?.VehicleID}
+      <FuelingModal
+        isOpen={isFuelingModalOpen}
+        onClose={closeFuelingModal}
+        onSubmit={handleFuelingSubmit}
       />
     </div>
   );

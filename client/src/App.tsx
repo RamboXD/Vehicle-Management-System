@@ -33,6 +33,9 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     if (role === "maintenance_person") {
       return <Navigate to="/maintenance/tasks" replace />;
     }
+    if (role === "fueling_person") {
+      return <Navigate to="/fueling/tasks" replace />;
+    }
 
     return <Navigate to="/" replace />;
   }

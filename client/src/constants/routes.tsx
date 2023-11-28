@@ -5,6 +5,8 @@ import FuelingPerson from "@/pages/Admin/Fuels/components/FuelingTable/Fueling";
 import MaintenancePerson from "@/pages/Admin/Maintenance/components/MaintenanceTable/MaintenancePerson";
 import { DriverProfile } from "@/pages/Driver/Profile/DriverProfile";
 import UnTasks from "@/pages/Driver/UnTasks/UnTasks";
+import CreateFueling from "@/pages/Fueling/CreateFueling/CreateFueling";
+import { FuelingProfile } from "@/pages/Fueling/Profile/FuelingProfile";
 import Landing from "@/pages/Landing/Landing";
 import CreateMaintenance from "@/pages/Maintenance/CreateMaintenance/CreateMaintenance";
 import { MaintenanceProfile } from "@/pages/Maintenance/Profile/MaintenanceProfile";
@@ -99,6 +101,20 @@ export const routes: IRoute[] = [
     name: "MaintenanceInfo",
     path: "/maintenance/me",
     component: <MaintenanceProfile />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
+  },
+  {
+    name: "FuelingTasks",
+    path: "/fueling/tasks",
+    component: <CreateFueling />,
+    roles: [Role.CLIENT, Role.ADMIN],
+    isPublic: false,
+  },
+  {
+    name: "FuelingInfo",
+    path: "/fueling/me",
+    component: <FuelingProfile />,
     roles: [Role.CLIENT, Role.ADMIN],
     isPublic: false,
   },
